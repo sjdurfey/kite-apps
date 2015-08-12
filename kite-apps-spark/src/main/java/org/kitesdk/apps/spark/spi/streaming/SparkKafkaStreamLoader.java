@@ -21,11 +21,16 @@ import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.Decoder;
 import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.specific.SpecificData;
+import org.apache.hadoop.fs.Path;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.streaming.api.java.JavaDStream;
+import org.apache.spark.streaming.api.java.JavaPairDStream;
 import org.apache.spark.streaming.api.java.JavaPairInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.apache.spark.streaming.kafka.HasOffsetRanges;
 import org.apache.spark.streaming.kafka.KafkaUtils;
+import org.apache.spark.streaming.kafka.OffsetRange;
 import org.kitesdk.apps.AppException;
 import org.kitesdk.apps.JobContext;
 import org.kitesdk.apps.spark.SparkJobContext;
@@ -41,7 +46,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class SparkKafkaStreamLoader {
-
 
   static class ToAvroFunction implements Function<Tuple2<byte[],byte[]>, Object> {
 
@@ -77,7 +81,6 @@ public class SparkKafkaStreamLoader {
     // JavaPairReceiverInputDStream<String, String> stream =  KafkaUtils.createStream(DefaultSparkContext.getStreamingContext(), "foo", "bar", null);
 
     JavaStreamingContext ctx = ((SparkJobContext) jobContext).getSparkStreamingContext();
-
 
     Map<String, String> params = Topics.getDirectStreamParams((SparkJobContext) jobContext);
 

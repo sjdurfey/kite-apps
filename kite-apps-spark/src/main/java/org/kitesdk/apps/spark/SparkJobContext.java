@@ -15,6 +15,7 @@
  */
 package org.kitesdk.apps.spark;
 
+import org.apache.hadoop.fs.Path;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.kitesdk.apps.AppContext;
@@ -37,8 +38,7 @@ public class SparkJobContext extends JobContext {
   }
 
   public JavaStreamingContext getSparkStreamingContext() {
-
-    return SparkContextFactory.getStreamingContext(appContext.getSettings());
+    return SparkContextFactory.getStreamingContext(appContext.getSettings(), appContext.getInstallPath() + "/var/checkpoints/");
   }
 
   /**

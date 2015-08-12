@@ -149,7 +149,7 @@
          <groupId>org.apache.spark</groupId>
          <artifactId>spark-core_2.10</artifactId>
          <version>${vers.spark}</version>
-         <scope>provided</scope>
+         <!--<scope>provided</scope>-->
        </dependency>
 
        <dependency>

@@ -61,21 +61,19 @@ public class SparkStreamingJobMain {
     Map<String,String> settings = PropertyFiles.loadIfExists(fs, propertiesPath);
 
     // Create the spark context for the application.
-    JavaSparkContext context = SparkContextFactory.getSparkContext(settings);
+    JavaStreamingContext streamingContext = SparkContextFactory.getStreamingContext(settings, appPath.toString() + "/var/checkpoints/");
+    JavaSparkContext context = streamingContext.sc();
 
     Configuration conf = context.hadoopConfiguration();
 
     // Use the loaded Hadoop configuration
     DefaultConfiguration.set(conf);
 
-    AppContext appContext = new AppContext(settings, conf);
-
+    AppContext appContext = new AppContext(settings, conf, appPath);
 
     // Run the job.
     StreamingJobManager manager = JobManagers.createStreaming(descrip, appContext);
     manager.run();
-
-    JavaStreamingContext streamingContext = SparkContextFactory.getStreamingContext(settings);
 
     streamingContext.start();
     streamingContext.awaitTermination();

@@ -31,6 +31,8 @@ public class AppContext {
 
   private final Map<String,String> settings;
 
+  private final Path installPath;
+
   /**
    * Gets the configuration settings for the application.
    */
@@ -45,18 +47,21 @@ public class AppContext {
     return new Configuration(conf);
   }
 
+  public Path getInstallPath() { return installPath; }
+
   /**
    * Creates a context with the given settings and Hadoop configuration.
    */
-  public AppContext(Map<String,String> settings, Configuration conf) {
+  public AppContext(Map<String,String> settings, Configuration conf, Path installPath) {
     this.settings = settings;
     this.conf = conf;
+    this.installPath = installPath;
   }
 
   /**
    * Creates a context with the given Hadoop configuration.
    */
   public AppContext(Configuration conf) {
-    this(Collections.<String,String>emptyMap(), conf);
+    this(Collections.<String,String>emptyMap(), conf, null);
   }
 }

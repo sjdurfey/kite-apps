@@ -123,7 +123,7 @@ public class InstallCommand extends BaseCommand {
 
     File appJarFile = new File(args.get(0));
     String appClassName = args.get(1);
-    Path destination = new Path(args.get(2));
+    Path destination = new Path(args.get(2) + "/" + String.valueOf(System.currentTimeMillis()));
 
     console.info("Installing {} to {}.", appClassName, destination);
 
@@ -160,7 +160,7 @@ public class InstallCommand extends BaseCommand {
         PropertyFiles.load(settingsFile) :
         Collections.<String,String>emptyMap();
 
-    AppContext context = new AppContext(settings, getConf());
+    AppContext context = new AppContext(settings, getConf(), destination);
 
     AppDeployer deployer = new AppDeployer(fs, context);
 

@@ -18,10 +18,13 @@ package org.kitesdk.apps.spark.spi;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Closeables;
 import org.apache.avro.specific.SpecificRecord;
+import org.apache.hadoop.fs.Path;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.streaming.Duration;
+import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.apache.spark.streaming.api.java.JavaStreamingContextFactory;
 import org.kitesdk.apps.AppContext;
 import org.kitesdk.apps.AppException;
 
@@ -43,6 +46,8 @@ public class SparkContextFactory {
   private static JavaSparkContext sparkContext = null;
 
   private static JavaStreamingContext streamingContext = null;
+
+  private static final String DURATION_OVERRIDE = "streaming.duration";
 
   private static Properties loadSparkDefaults() {
     Properties defaults = new Properties();
@@ -107,12 +112,9 @@ public class SparkContextFactory {
     return sparkContext;
   }
 
-  public static synchronized JavaStreamingContext getStreamingContext(Map<String,String> settings) {
-
-
+  public static synchronized JavaStreamingContext getStreamingContext(Map<String,String> settings, String checkpointPath) {
     if (streamingContext == null) {
-
-      streamingContext = new JavaStreamingContext(getSparkContext(settings), new Duration(1000));
+      streamingContext = JavaStreamingContext.getOrCreate(checkpointPath, new CheckpointContextFactory(settings, checkpointPath));
     } else {
 
       // Check to see if the settings are compatible.
@@ -122,6 +124,43 @@ public class SparkContextFactory {
     }
 
     return streamingContext;
+  }
+
+  private static class CheckpointContextFactory implements JavaStreamingContextFactory {
+
+    private final Map<String, String> settings;
+    private final String checkpointPath;
+
+    public CheckpointContextFactory(Map<String, String> settings, String checkpointPath) {
+      this.settings = settings;
+      this.checkpointPath = checkpointPath;
+    }
+
+    @Override
+    public JavaStreamingContext create() {
+      final JavaStreamingContext jssc = new JavaStreamingContext(getSparkContext(settings), getDuration(settings));
+      jssc.checkpoint(checkpointPath);
+
+      return jssc;
+    }
+  }
+
+  public static Duration getDuration(Map<String, String> settings) {
+    final String durationOverride = settings.get(DURATION_OVERRIDE);
+    if (durationOverride != null) {
+      if (durationOverride.endsWith("ms")) {
+        final String milliseconds = durationOverride.substring(0, durationOverride.length() - 2);
+        return Durations.milliseconds(Long.valueOf(milliseconds));
+      } else if (durationOverride.endsWith("s")) {
+        final String seconds = durationOverride.substring(0, durationOverride.length() - 1);
+        return Durations.seconds(Long.valueOf(seconds));
+      } else {
+        final String minutes = durationOverride.substring(0, durationOverride.length() - 1);
+        return Durations.minutes(Long.valueOf(minutes));
+      }
+    }
+
+    return Durations.seconds(1L);
   }
 
   public static synchronized void shutdown() {

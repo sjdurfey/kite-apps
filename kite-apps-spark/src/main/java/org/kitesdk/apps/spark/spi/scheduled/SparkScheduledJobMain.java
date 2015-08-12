@@ -57,7 +57,7 @@ public class SparkScheduledJobMain {
 
     Map<String,String> settings = PropertyFiles.loadIfExists(FileSystem.get(conf), propertiesPath);
 
-    AppContext appContext = new AppContext(settings, conf);
+    AppContext appContext = new AppContext(settings, conf, new Path(kiteAppRoot));
 
     Instant nominalTime = OozieScheduling.getNominalTime(conf);
 

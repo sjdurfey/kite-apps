@@ -81,7 +81,7 @@ public class OozieScheduledJobMain extends Configured implements Tool {
 
     Map<String,String> settings = PropertyFiles.loadIfExists(FileSystem.get(getConf()), propertiesPath);
 
-    AppContext appContext = new AppContext(settings, getConf());
+    AppContext appContext = new AppContext(settings, getConf(), new Path(kiteAppRoot));
 
     Instant nominalTime = OozieScheduling.getNominalTime(getConf());
 

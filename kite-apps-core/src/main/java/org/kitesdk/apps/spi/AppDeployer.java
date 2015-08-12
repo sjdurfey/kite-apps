@@ -152,6 +152,13 @@ public class AppDeployer {
     // Install the library JARs.
     installJars(new Path(tempDestination, "lib"), jars);
 
+    // create checkpoint directory
+    try {
+      fs.mkdirs(new Path(tempDestination + "/var/checkpoints/"));
+    } catch (IOException e) {
+      throw new AppException(e);
+    }
+
     // Copy the temporary path to the final location.
     try {
       if (!fs.rename(tempDestination, appPath)) {
